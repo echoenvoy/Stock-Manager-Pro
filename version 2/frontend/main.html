@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Stock Manager</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="Style.css">
+  <script src="https://cdn.sheetjs.com/xlsx-latest/package/dist/xlsx.full.min.js"></script>
+  <link rel="icon" href="chariot.png" type="image/png" sizes="264x264">
+</head>
+<body>
+  <!--header-->
+  <header>
+    <div class="logo">
+      <i class="fas fa-boxes"></i>
+      <h1>StockMaster Professional</h1>
+    </div>
+  </div>
+  <div class="header-controls">
+    <button class="theme-toggle" id="theme-toggle">
+        <i class="fas fa-moon"></i>
+    </button>
+  </div>
+  </header>
+
+    <nav class="main-nav">
+  <ul class="nav-list">
+      <li><a href="main.html" class="nav-link active" data-page="dashboard"><i class="fas fa-home"></i> Dashboard</a></li>
+      <li><a href="stock.html" class="nav-link" data-page="products"><i class="fas fa-box"></i> Products</a></li>
+      <li><a href="delivery.html" class="nav-link" data-page="delivery"><i class="fas fa-truck"></i> Delivery</a></li>
+      <li><a href="Employee.html" class="nav-link" data-page="delivery"><i class="fas fa-users"></i> Employee</a></li>
+      <li><a href="reports.html" class="nav-link"><i class="fas fa-chart-line"></i> Reports</a></li>
+      <li><a href="settings.html" class="nav-link"><i class="fas fa-cog"></i> Settings</a></li>
+  </ul>
+  </nav>
+
+  
+
+  <!-- Dashboard Page -->
+    <div id="dashboard-page" >
+      <div class="dashboard">
+        <div class="dashboard-card products-card" onclick="location.href='stock.html'">
+          <div class="card-icon">
+            <i class="fas fa-box"></i>
+          </div>
+          <h3 class="card-title">Product Management</h3>
+          <p class="card-description">Add, edit and manage your stock products</p>
+          <button class="card-btn" data-page="products" onclick="location.href='stock.html'" >
+            <i class="fas fa-arrow-right"></i> Access
+          </button>
+        </div>
+        
+        <div class="dashboard-card delivery-card" onclick="location.href='delivery.html'">
+          <div class="card-icon">
+            <i class="fas fa-truck"></i>
+          </div>
+          <h3 class="card-title">Delivery Management</h3>
+          <p class="card-description">Create and track your product deliveries</p>
+          <button class="card-btn" data-page="delivery" onclick="location.href='delivery.html'">
+            <i class="fas fa-arrow-right"></i> Access
+          </button>
+        </div>
+      </div>
+
+  <div class="section">
+        <div class="section-header">
+          <h2 class="section-title">Stock Actuel</h2>
+          <div class="section-actions">
+            <button class="btn btn-outline" onclick="exportStock()">
+              <i class="fas fa-file-export"></i> Export
+            </button>
+          </div>
+        </div>
+        <div class="table-container">
+          <table class="data-table">
+              <thead>
+                <tr>
+                  <th>ID</th><th>Name</th><th>Qty</th><th>Price</th><th>Date</th>
+                </tr>
+              </thead>
+              <tbody id="stockTable_tb1"></tbody>
+            </table>
+        </div>
+  </div>
+  
+
+  <div class="section">
+        <div class="section-header">
+          <h2 class="section-title">Recent Deliveries </h2>
+          <div class="section-actions">
+            <button class="btn btn-outline" onclick="exportDelivery()">
+              <i class="fas fa-file-export"></i> Export
+            </button>
+          </div>
+          </div>
+        </div>
+        <div class="table-container">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>ID Delivery</th>
+                <th>Employee</th>
+                <th>ID Employee</th>
+                <th>Product</th>
+                <th>Quantity</th>
+                <th>Delivery Date</th>
+                <th>Reception Date</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody id="deliveryTable_tb">
+            </tbody>
+          </table>
+        </div>
+  
+    </div>
+          
+
+
+  <footer>
+    <p>&copy;2025 Stock Manager Pro. All rights reserved.</p>
+  </footer>
+  <script src="script.js"></script>
+<script>
+    async function renderStock() {
+        try {
+            const stock = await getStock();
+            const stockTable = document.getElementById("stockTable_tb1");
+            
+            if (stock.length === 0) {
+                stockTable.innerHTML = `
+                    <tr>
+                        <td colspan="5" style="text-align: center; padding: 20px; color: #6c757d;">
+                            <i class="fas fa-box-open" style="font-size: 3rem; margin-bottom: 10px;"></i>
+                            <p>No products in stock. Add your first product!</p>
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+            
+            stockTable.innerHTML = "";
+            stock.forEach(item => {
+                stockTable.innerHTML += `
+                    <tr>
+                        <td>${item.id}</td>
+                        <td>${item.name}</td>
+                        <td>${item.qty}</td>
+                        <td>${item.price} DH</td>
+                        <td>${formatDate(item.date_added)}</td>
+                    </tr>`;
+            });
+        } catch (error) {
+            console.error('Error loading stock:', error);
+            const stockTable = document.getElementById("stockTable_tb1");
+            stockTable.innerHTML = `
+                <tr>
+                    <td colspan="5" style="text-align: center; padding: 20px; color: #dc3545;">
+                        <i class="fas fa-exclamation-triangle" style="font-size: 3rem; margin-bottom: 10px;"></i>
+                        <p>Error loading stock data</p>
+                    </td>
+                </tr>
+            `;
+        }
+    }
+
+    async function renderDelivery() {
+        try {
+            const deliveries = await getDelivery();
+            const table = document.getElementById("deliveryTable_tb");
+            
+            if (deliveries.length === 0) {
+                table.innerHTML = `
+                    <tr>
+                        <td colspan="8" style="text-align: center; padding: 20px; color: #6c757d;">
+                            <i class="fas fa-truck" style="font-size: 3rem; margin-bottom: 10px;"></i>
+                            <p>No deliveries found. Add the first delivery!</p>
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+            
+            table.innerHTML = "";
+            deliveries.forEach((item) => {
+                const statusText = determineDeliveryStatus(item);
+                table.innerHTML += `
+                    <tr>
+                        <td>${item.id}</td>
+                        <td>${item.employee_name}</td>
+                        <td>${item.employee_id}</td>
+                        <td>${item.product_name}</td>
+                        <td>${item.quantity}</td>
+                        <td>${formatDate(item.date_order)}</td>
+                        <td>${formatDate(item.date_received)}</td>
+                        <td><span class="status-badge ${statusText}">${statusText}</span></td>
+                    </tr>`;
+            });
+        } catch (error) {
+            console.error('Error loading deliveries:', error);
+            const table = document.getElementById("deliveryTable_tb");
+            table.innerHTML = `
+                <tr>
+                    <td colspan="8" style="text-align: center; padding: 20px; color: #dc3545;">
+                        <i class="fas fa-exclamation-triangle" style="font-size: 3rem; margin-bottom: 10px;"></i>
+                        <p>Error loading delivery data</p>
+                    </td>
+                </tr>
+            `;
+        }
+    }
+
+    function determineDeliveryStatus(delivery) {
+        const now = new Date();
+        const deliveryDate = new Date(delivery.date_order);
+        const receptionDate = new Date(delivery.date_received);
+
+        if (now < deliveryDate) {
+            return "pending";
+        } else if (now >= deliveryDate && now < receptionDate) {
+            return "in-progress";
+        } else if (now >= receptionDate) {
+            return "delivered";
+        }
+        return "unknown";
+    }
+
+    async function exportStock() {
+        try {
+            const stock = await getStock();
+            if (stock.length === 0) {
+                alert("No products to export.");
+                return;
+            }
+
+            const worksheet = XLSX.utils.json_to_sheet(stock);
+            const workbook = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(workbook, worksheet, "Stock");
+            XLSX.writeFile(workbook, "stock-data.xlsx");
+            showNotification("Stock exported successfully!", "success");
+        } catch (error) {
+            console.error('Error exporting stock:', error);
+            showNotification("Error exporting stock", "error");
+        }
+    }
+
+    async function exportDelivery() {
+        try {
+            const deliveries = await getDelivery();
+            if (deliveries.length === 0) {
+                alert("No deliveries to export.");
+                return;
+            }
+
+            const now = new Date();
+            const exportTime = now.toLocaleString();
+            const headerRow = [{ "Exported At": exportTime }];
+            const dataWithHeader = headerRow.concat(deliveries);
+
+            const worksheet = XLSX.utils.json_to_sheet(dataWithHeader, { skipHeader: false });
+            const workbook = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(workbook, worksheet, "Deliveries");
+            XLSX.writeFile(workbook, "delivery-data.xlsx");
+            showNotification("Deliveries exported successfully!", "success");
+        } catch (error) {
+            console.error('Error exporting deliveries:', error);
+            showNotification("Error exporting deliveries", "error");
+        }
+    }
+
+    // Load dashboard data on page load
+    document.addEventListener('DOMContentLoaded', async function() {
+        try {
+            await renderStock();
+            await renderDelivery();
+            
+            // Add click handlers for dashboard cards
+            const cards = document.querySelectorAll('.dashboard-card');
+            cards.forEach(card => {
+                card.addEventListener('click', function() {
+                    const page = this.querySelector('.card-btn').getAttribute('data-page');
+                    if (page === 'products') {
+                        window.location.href = 'stock.html';
+                    } else if (page === 'delivery') {
+                        window.location.href = 'delivery.html';
+                    }
+                });
+            });
+            
+        } catch (error) {
+            console.error('Error loading dashboard data:', error);
+        }
+    });
+</script>
+  
+ 
+</body>
+</html>

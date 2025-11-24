@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Stock Manager - Stock</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="Style.css">
+  <script src="https://cdn.sheetjs.com/xlsx-latest/package/dist/xlsx.full.min.js"></script>
+  <link rel="icon" href="chariot.png" type="image/png" sizes="264x264">
+</head>
+<body>
+  <!--header-->
+  <header>
+    <div class="logo">
+      <i class="fas fa-boxes"></i>
+      <h1>StockMaster Professional</h1>
+    </div>
+    <div class="header-controls">
+      <button class="theme-toggle" id="theme-toggle">
+          <i class="fas fa-moon"></i>
+      </button>
+    </div>
+  </header>
+
+    <nav class="main-nav">
+  <ul class="nav-list">
+      <li><a href="main.html" class="nav-link" data-page="dashboard"><i class="fas fa-home"></i> Dashboard</a></li>
+      <li><a href="stock.html" class="nav-link active" data-page="products"><i class="fas fa-box"></i> Products</a></li>
+      <li><a href="delivery.html" class="nav-link" data-page="delivery"><i class="fas fa-truck"></i> Delivery</a></li>
+      <li><a href="Employee.html" class="nav-link" data-page="delivery"><i class="fas fa-users"></i> Employee</a></li>
+      <li><a href="reports.html" class="nav-link"><i class="fas fa-chart-line"></i> Reports</a></li>
+      <li><a href="settings.html" class="nav-link"><i class="fas fa-cog"></i> Settings</a></li>
+  </ul>
+  </nav>
+
+  <!-- Products Page -->
+    
+    
+      <div id="notification" class="notification hidden"></div>
+      <div class="section">
+        <div class="section-header">
+          <h2 class="section-title">Product Management</h2>
+          <div class="section-actions">
+            <button class="btn btn-outline" onclick="exportStock()">
+              <i class="fas fa-file-export"></i> Export
+            </button>
+
+            <button  onclick="location.href='#product-form'" class="btn btn-primary" id="add-product-btn">
+              <i class="fas fa-plus"></i> Add Product
+            </button>
+
+          </div>
+        </div>
+        <div class="search-box">
+          <input type="text" id="search-input" placeholder="Search products..." oninput="filterProducts()">
+          <button onclick="filterProducts()"><i class="fas fa-search"></i></button>
+        </div>
+        <div id="table_stocks" class="table-container">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th class="th_click" onclick="sortTable('id')">ID ▲▼</th>
+                  <th class="th_click" onclick="sortTable('name')">Name ▲▼</th>
+                  <th>Qty</th><th>Price</th><th>Date</th><th>Actions</th>
+                </tr>
+              </thead>
+              <tbody id="stockTable_tb"></tbody>
+            </table>
+         
+        </div>
+      </div>
+      
+      <div class="section">
+        <div class="section-header">
+          <h2 class="section-title">Add a product</h2>
+        </div>
+        <form id="product-form" class="product-form">
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label" for="name">Name Product</label>
+              <input type="text" id="name" class="form-input" placeholder="Enter the name of product">
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="qty">Quantity</label>
+              <input type="number" id="qty" class="form-input" placeholder="Quantity in stock">
+            </div>
+          </div>
+          
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label" for="price">Unit price(DH)</label>
+              <input type="number" id="price" class="form-input" placeholder="Unit price">
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="date_added">Date Added</label>
+              <input type="date" id="date_added" class="form-input">
+            </div>
+          </div>
+          
+          <div class="form-group">
+            <button onclick="addProduct()" id="myButton"  type="button" class="btn btn-primary">
+              <i class="fas fa-plus"></i> Add
+            </button>
+          </div>
+        </form>
+      </div>
+  <footer>
+    <p>&copy; 2025 Stock Manager Pro. All rights reserved.</p>
+  </footer>
+  <script src="script.js"></script>
+  <script>
+    let editIndex = -1;
+    const btn = document.getElementById("myButton");
+
+    // Adds a new product or updates an existing one after validating the form inputs.
+    async function addProduct() {
+        const name = nameInput.value.trim();
+        const qty = parseInt(qtyInput.value);
+        const price = parseFloat(priceInput.value);
+        const date_added = dateInput.value;
+
+        if (!name || isNaN(qty) || isNaN(price) || !date_added) {
+            alert("Please fill in all fields.");
+            return;
+        }
+        if (qty <= 0 || price <= 0) {
+            alert("Quantity and price must be positive numbers.");
+            return;
+        }
+
+        const productData = {
+            name: name,
+            qty: qty,
+            price: price,
+            date_added: date_added
+        };
+
+        try {
+            if (editIndex === -1) {
+                await addProductAPI(productData);
+                showNotification("Product added successfully!", "success");
+            } else {
+                await updateProduct(editIndex, productData);
+                showNotification("Product updated successfully!", "success");
+                editIndex = -1;
+            }
+            await renderStock();
+            window.location.href = "#notification"; 
+            nameInput.value = qtyInput.value = priceInput.value = dateInput.value = "";
+        } catch (error) {
+            showNotification("Error saving product", "error");
+        }
+    }
+
+    // Dynamically displays the stored products in an HTML table
+    async function renderStock() {
+        try {
+            const stock = await getStock();
+            const stockTable = document.getElementById("stockTable_tb");
+            
+            if (stock.length === 0) {
+                stockTable.innerHTML = `
+                    <tr>
+                        <td colspan="6" style="text-align: center; padding: 20px; color: #6c757d;">
+                            <i class="fas fa-box-open" style="font-size: 3rem; margin-bottom: 10px;"></i>
+                            <p>No products in stock. Add your first product!</p>
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+            
+            stockTable.innerHTML = "";
+            stock.forEach((item, index) => {
+                stockTable.innerHTML += `
+                    <tr>
+                        <td>${item.id}</td>
+                        <td>${item.name}</td>
+                        <td>${item.qty}</td>
+                        <td>${item.price} DH</td>
+                        <td>${formatDate(item.date_added)}</td>
+                        <td class="action-cell">
+                            <button class="action-btn edit-btn" onclick="editProduct('${item.id}')" aria-label="Edit product">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                            <button class="action-btn delete-btn" onclick="deleteProduct('${item.id}')" aria-label="Delete product">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </td>
+                    </tr>`;
+            });
+            btn.innerHTML = '<i class="fas fa-plus"></i> Add';
+        } catch (error) {
+            console.error('Error loading stock:', error);
+        }
+    }
+
+    // Deletes a product from the list after user confirmation
+    async function deleteProduct(productId) {
+        if (confirm("Do you really want to delete this product?")) {
+            try {
+                await deleteProductAPI(productId);
+                showNotification("Product deleted successfully!", "success");
+                await renderStock();
+            } catch (error) {
+                showNotification("Error deleting product", "error");
+            }
+        }
+    }
+
+    // Loads a product's data into the form for editing
+    async function editProduct(productId) {
+        try {
+            const stock = await getStock();
+            const product = stock.find(p => p.id === productId);
+            
+            if (product) {
+                nameInput.value = product.name;
+                qtyInput.value = product.qty;
+                priceInput.value = product.price;
+                dateInput.value = product.date_added;
+
+                editIndex = productId;
+                btn.innerHTML = '<i class="fas fa-edit"></i> Edit';
+                window.location.href = "#product-form";
+            }
+        } catch (error) {
+            showNotification("Error loading product data", "error");
+        }
+    }
+
+    // Export function for stock
+    async function exportStock() {
+        try {
+            const stock = await getStock();
+            if (stock.length === 0) {
+                alert("No products to export.");
+                return;
+            }
+
+            const worksheet = XLSX.utils.json_to_sheet(stock);
+            const workbook = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(workbook, worksheet, "Stock");
+            XLSX.writeFile(workbook, "stock-data.xlsx");
+        } catch (error) {
+            showNotification("Error exporting stock", "error");
+        }
+    }
+
+    // Filter products
+    async function filterProducts() {
+        const searchTerm = document.getElementById("search-input").value.toLowerCase();
+        try {
+            const stock = await getStock();
+            const filtered = stock.filter(item => 
+                item.name.toLowerCase().includes(searchTerm) || 
+                item.id.toLowerCase().includes(searchTerm)
+            );
+            renderFilteredStock(filtered);
+        } catch (error) {
+            console.error('Error filtering products:', error);
+        }
+    }
+
+    function renderFilteredStock(filteredStock) {
+        const stockTable = document.getElementById("stockTable_tb");
+        
+        if (filteredStock.length === 0) {
+            stockTable.innerHTML = `
+                <tr>
+                    <td colspan="6" class="no-results">
+                        <i class="fas fa-search-minus"></i>
+                        <p>No products match your search</p>
+                    </td>
+                </tr>
+            `;
+            return;
+        }
+
+        stockTable.innerHTML = "";
+        filteredStock.forEach((item) => {
+            stockTable.innerHTML += `
+                <tr>
+                    <td>${item.id}</td>
+                    <td>${item.name}</td>
+                    <td>${item.qty}</td>
+                    <td>${item.price} DH</td>
+                    <td>${formatDate(item.date_added)}</td>
+                    <td class="action-cell">
+                        <button class="action-btn edit-btn" onclick="editProduct('${item.id}')">
+                            <i class="fas fa-edit"></i>
+                        </button>
+                        <button class="action-btn delete-btn" onclick="deleteProduct('${item.id}')">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </td>
+                </tr>
+            `;
+        });
+    }
+
+    // Sorting function
+    async function sortTable(column) {
+        try {
+            const stock = await getStock();
+            stock.sort((a, b) => a[column] > b[column] ? 1 : -1);
+            renderFilteredStock(stock);
+        } catch (error) {
+            console.error('Error sorting products:', error);
+        }
+    }
+
+    const nameInput = document.getElementById("name");
+    const qtyInput = document.getElementById("qty");
+    const priceInput = document.getElementById("price");
+    const dateInput = document.getElementById("date_added");
+
+    // Initialize on page load
+    document.addEventListener('DOMContentLoaded', async function() {
+        await renderStock();
+    });
+</script>
+
+  
+</body>
+</html>
