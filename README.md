@@ -3,6 +3,11 @@ Stock Manager Pro is a web-based inventory system built with Flask and HTML/CSS/
 ## 🎥 Project Demo Video
 https://drive.google.com/file/d/1qWKB2iVnhDoj8i4UTLiqPhlPdo7NVuue/view?usp=drive_link
 
+## 🌐 Live Demo
+If you want to consult (visit) the site, click here:
+
+👉 **https://echoenvoy.github.io/Project_1internship_onssa/version%201/login.html**
+
 ---
 
 ### 🌐 **Two Versions of the Application**
