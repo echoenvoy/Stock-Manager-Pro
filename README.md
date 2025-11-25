@@ -11,7 +11,6 @@ If you want to consult (visit) the site, click here:
 Use these credentials to log in:
 
 - **Username:** admin
-- 
 - **Password:** 1234
 
 ---
