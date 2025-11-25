@@ -10,7 +10,7 @@ If you want to consult (visit) the site, click here:
 
 ---
 
-### 🌐 **Two Versions of the Application**
+## 🌐 **Two Versions of the Application**
 
 To ensure flexibility, scalability, and accessibility, the system was developed in **two distinct versions**, each designed for different usage scenarios:
 
