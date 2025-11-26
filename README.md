@@ -39,7 +39,7 @@ To ensure flexibility, scalability, and accessibility, the system was developed 
 
 🔗 **Flask API** handling all business logic
 
-🗄️ **Database integration** (PostgreSQL / SQLite)
+🗄️ **Database integration** (PostgreSQL )
 
 🔐 **Secure authentication** (session or token-based)
 
