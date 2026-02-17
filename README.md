@@ -1,50 +1,54 @@
-# Project Internship
-Stock Manager Pro is a web-based inventory system built with Flask and HTML/CSS/vanilla JS. It streamlines product tracking, delivery management, and employee control, offering real-time analytics, automatic ID generation, multi-format exports, and a secure, scalable architecture.
-## 🎥 Project Demo Video
+# Stock Manager Pro
+
+Stock Manager Pro is a web-based inventory management system built with Flask, PostgreSQL, and vanilla JavaScript. It streamlines product tracking, delivery management, and employee control while providing real-time analytics and secure authentication.
+
+---
+
+## Overview
+
+The system allows businesses to:
+
+* Manage products and stock levels
+* Track deliveries and inventory movements
+* Control employee access
+* Generate automatic product IDs
+* Export data in multiple formats
+
+---
+
+## Two Versions
+
+**Frontend Version (Client-Side Only)**
+
+* HTML, CSS, JavaScript
+* LocalStorage for data persistence
+* No backend required
+* Works offline
+* Ideal for demos and small-scale usage
+
+**Full-Stack Version (Flask + PostgreSQL)**
+
+* RESTful Flask API
+* Database-backed persistent storage
+* Secure authentication
+* Multi-user support
+* Scalable and production-ready
+
+---
+
+## Tech Stack
+
+* Python (Flask)
+* PostgreSQL
+* HTML, CSS, JavaScript
+
+---
+##  Project Demo Video
 https://drive.google.com/file/d/1qWKB2iVnhDoj8i4UTLiqPhlPdo7NVuue/view?usp=drive_link
 
-## 🌐 Live Demo
+##  Live Demo
 If you want to consult the site (Version 1 – Frontend), click here:
 
-👉 **https://echoenvoy.github.io/stock-manager-pro/version%201/login.html**
+=> **https://echoenvoy.github.io/stock-manager-pro/version%201/login.html**
+This project demonstrates full-stack architecture, secure authentication, database design, and real-world inventory management logic.
 
-Use these credentials to log in:
-
-- **Username:** admin
-- **Password:** 1234
-
----
-
-## 🌐 **Two Versions of the Application**
-
-To ensure flexibility, scalability, and accessibility, the system was developed in **two distinct versions**, each designed for different usage scenarios:
-
----
-
-#### ⚡ **1. Frontend-Only Version (HTML, CSS, JavaScript, LocalStorage)**
-
-🖥️ **Pure client-side application**
-
-💾 **Data stored locally** using `localStorage`
-
-🔌 **No backend or server required**
-
-🚀 **Fast, lightweight, and works offline**
-
-🎯 Ideal for demos, small businesses, and devices without internet access
-
----
-
-#### 🐍 **2. Fullstack Version with Flask Backend** (SAME CODE HTML & CSS )
-
-🔗 **Flask API** handling all business logic
-
-🗄️ **Database integration** (PostgreSQL )
-
-🔐 **Secure authentication** (session or token-based)
-
-📡 **Real-time operations** and multi-user support
-
-📈 **Scalable**, reliable, and ready for production environments
-
----
