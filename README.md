@@ -49,6 +49,8 @@ https://drive.google.com/file/d/1qWKB2iVnhDoj8i4UTLiqPhlPdo7NVuue/view?usp=drive
 ##  Live Demo
 If you want to consult the site (Version 1 – Frontend), click here:
 
-=> **https://echoenvoy.github.io/stock-manager-pro/version%201/login.html**
+=> **https://stock-manager-pro-six.vercel.app/login.html**
+
+
 This project demonstrates full-stack architecture, secure authentication, database design, and real-world inventory management logic.
 
