@@ -50,6 +50,7 @@ https://drive.google.com/file/d/1qWKB2iVnhDoj8i4UTLiqPhlPdo7NVuue/view?usp=drive
 If you want to consult the site (Version 1 – Frontend), click here:
 
 => **https://stock-manager-pro-six.vercel.app/login.html**
+username :admin ; password:1234
 
 
 This project demonstrates full-stack architecture, secure authentication, database design, and real-world inventory management logic.
